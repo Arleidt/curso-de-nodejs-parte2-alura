@@ -16,7 +16,7 @@ var marko_template = module.exports = require("marko/src/html").t(__filename),
 function render(input, out, __component, component, state) {
   var data = input;
 
-  out.w("<html><head><meta charset=utf-8></head><body><h1> Listagem de livros </h1><table id=livros><tr><td>ID</td><td>Título</td><td>Preço</td><td>Editar</td><td>Remover</td></tr>");
+  out.w("<html><head><meta charset=utf-8><link rel=stylesheet href=/estatico/css/bootstrap.min.css><link rel=stylesheet href=/estatico/css/fontawesome.min.css><link rel=stylesheet href=/estatico/css/casadocodigo.css></head><body><header class=cabecalhoPrincipal><div class=container><div class=\"row align-items-center\"><div class=col-4><h1 class=logo><img src=/estatico/imagens/logo-casadocodigo.svg alt=\"Casa do Código\"></h1></div><div class=\"cabecalhoPrincipal-navegacao col-8\"><a href=# class=login><i class=\"fas fa-sign-in-alt\"></i>Login</a></div></div></div></header><main class=conteudoPrincipal><div class=container><h1> Listagem de livros </h1><table id=livros class=\"table table-striped table-hover\"><thead class=thead-dark><tr><th>ID</th><th>Título</th><th>Preço</th><th>Editar</th><th>Remover</th></tr></thead><tbody>");
 
   var $for$0 = 0;
 
@@ -25,7 +25,7 @@ function render(input, out, __component, component, state) {
 
     out.w("<tr" +
       marko_attr("id", "livro_" + (livro.id == null ? "" : livro.id)) +
-      "> <td>" +
+      "><td>" +
       marko_escapeXml(livro.id) +
       "</td><td>" +
       marko_escapeXml(livro.titulo) +
@@ -33,20 +33,20 @@ function render(input, out, __component, component, state) {
       marko_escapeXml(livro.preco) +
       "</td><td><a" +
       marko_attr("href", "/livros/form/" + (livro.id == null ? "" : livro.id)) +
-      ">Editar</a></td> <td><a href=#" +
+      ">Editar</a></td><td><a href=#" +
       marko_attr("data-ref", livro.id) +
-      " data-type=remocao>Remover</a></td> </tr>");
+      " data-type=remocao>Remover</a></td></tr>");
   });
 
-  out.w("</table> <script src=/estatico/js/remove-livro.js>\r\n        </script>");
+  out.w("</tbody></table></div></main><footer class=rodape><div class=container><div class=\"row align-items-center\"><div class=col-4><img src=/estatico/imagens/logo-rodape.svg class=logo-rodape></div><div class=col-8><ul class=redesSociais><li><a href=http://www.facebook.com/casadocodigo class=compartilhar-facebook target=_blank>/CasaDoCodigo</a></li><li><a href=http://www.twitter.com/casadocodigo class=compartilhar-twitter target=_blank>@casadocodigo</a></li></ul></div></div></div></footer><script src=/estatico/js/remove-livro.js>\r\n        </script>");
 
   init_components_tag({}, out);
 
-  await_reorderer_tag({}, out, __component, "20");
+  await_reorderer_tag({}, out, __component, "47");
 
   _preferred_script_location_tag({}, out);
 
-  out.w("</body> </html>");
+  out.w("</body></html>");
 }
 
 marko_template._ = marko_renderer(render, {
