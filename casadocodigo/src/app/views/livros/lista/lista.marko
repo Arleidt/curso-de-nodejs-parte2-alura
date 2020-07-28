@@ -1,0 +1,74 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+    </head>
+    <body>
+        <h1> Listagem de livros </h1>
+
+        <table id="livros">
+            <tr>
+                <td>ID</td>
+                <td>Título</td>
+                <td>Preço</td>
+                <td>Editar</td>
+                <td>Remover</td>
+            </tr>
+            <tr id="livro_${livro.id}" for (livro in data.livros)> 
+                <td>${livro.id}</td>
+                <td>${livro.titulo}</td>
+                <td>${livro.preco}</td>
+                <td><a href="/livros/form/${livro.id}">Editar</a></td> 
+                <td><a href="#" data-ref="${livro.id}" data-type="remocao">Remover</a></td> 
+            </tr>
+        </table> 
+
+        <script src="/estatico/js/remove-livro.js">
+        </script>
+    </body> 
+</html>
+
+
+<!---
+    Na tag <tr> de lista.marko, na qual havíamos definido o livro estático, criaremos um for () recebendo 
+    data, uma variável disponibilizada pelo Marko cujo valor representará o objeto JavaScript que passamos 
+    no segundo parâmetro da função marko(). Como esse objeto tem uma propriedade livros, podemos
+    acessá-la com o auxílio de uma variável auxiliar for (data.livros).
+
+    Agora queremos imprimir o id e o titulo da variável livro. Para isso, usaremos uma marko expression, 
+    que é uma forma de referenciar uma variável em nossa página. Ela é utilizada com ${}, passando a 
+    referência dentro dessa expressão: 
+-->
+
+<!---
+        home.marko
+
+<include('./layout.marko')>
+   <@cabecalho>
+       <h1>Casa do Código - Home</h1>
+   </@cabecalho>
+</include>
+
+$ var livrosPromise = new Promise((resolve, reject) => {
+   setTimeout(function() {
+       resolve([
+           {
+               titulo: 'Cangaceiro Node'
+           },
+           {
+               titulo: 'Node na prática'
+           }
+       ]);
+   }, 1000);
+});
+
+<await(livros from livrosPromise)>
+   <div for (livro in livros)>Título: ${livro.titulo}</div>
+</await>
+
+layout.marko 
+<html>
+   <body>
+       <include(input.cabecalho)/>
+   </body>
+</html>
+-->

@@ -1,0 +1,54 @@
+<html>
+        <body>
+            <h1>Cadastro de livros</h1>
+
+                    <form action="/livros" method="post">
+                            <div if(data.livro.id)>
+                                        <input type="hidden" name="_method" value="PUT">
+                                        <input type="hidden" id="id" name="id" value="${data.livro.id}" />
+                            </div>
+
+                                    <div>
+                                        <label for="titulo">Titulo:</label>
+                                        <input type="text" id="titulo" name="titulo" value="${data.livro.titulo}" placeholder="coloque o titulo" />
+                                    </div>
+                                        <div>
+                                            <label for="preco">Preço:</label>
+                                            <input type="text" id="preco" name="preco" value="${data.livro.preco}" placeholder="150.25" />
+                                        </div>
+                                    <div>
+                                        <label for="descricao">Descrição:</label>
+                                        <textarea cols="20" rows="10"  id="descricao" name="descricao"  placeholder="fale sobre o livro">${data.livro.descricao}</textarea>
+                                    </div>
+
+                        <input type="submit" value="Salvar" />
+                    </form>
+        </body>
+</html>
+
+<!---
+    No <input type "hidden" /> do arquivo form.marko, atribuiremos o valor do id do livro que foi passado
+    para nosso template (${data.livro.id}).  Faremos a mesma coisa para o título (${data.livro.titulo}), para o 
+    preço (${data.livro.preco}) e para a descrição (${data.livro.descricao}). Já no link de edição do arquivo
+     lista.marko, preencheremos o atributo href, que antes estava apenas com #, 
+     com /livros/form/${livro.id}, que é exatamente a rota que acabamos de criar.
+
+     Dessa maneira, precisamos encontrar uma forma de filtrar todas as requisições que cheguem na
+      aplicação, verificando se, nelas, existe ou não um valor para id. Ou seja, dada uma condição 
+      específica, queremos sobrescrever o método de envio da nossa requisição.
+      Felizmente, já existe um middleware que faz justamente isso, chamado method-override.
+      Para implementarmos esse middleware, depois de utilizarmos o bodyParser, precisaremos declarar 
+      o method-override, como no exemplo da documentação:
+
+      Sempre que quisermos que um método seja sobrescrito, também precisaremos adicionar ao 
+      formulário um <input> do tipo hidden com o nome _method e passando como valor o método 
+      que será utilizado para sobrescrevê-lo:
+      <input type="hidden" name="_method" value="DELETE">
+
+      Por último, no form.marko, colocaremos o <input> referente ao método PUT. Porém, 
+      temos que nos atentar ao fato de que queremos utilizar esse método somente quando estivermos
+      editando um livro - ou seja, quando a propriedade livro tiver um id válido. Com a sintaxe do
+      Marko JS, faremos isso facilmente, declarando uma <div> que só será exibida se data.livro.id for 
+      válido. Tudo que estiver dentro dessa <div> (ou seja, os inputs ocultos) só será renderizado caso 
+      tenhamos esse id válido - exatamente o que acontece quando estamos editando um livro.
+-->

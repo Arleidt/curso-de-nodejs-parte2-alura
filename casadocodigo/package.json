@@ -1,0 +1,30 @@
+{
+  "name": "casadocodigo",
+  "version": "1.0.0",
+  "description": "livraria casa do codigo",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Arleidt/nodejs-alura.git"
+  },
+  "author": "arlei duarte",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Arleidt/nodejs-alura/issues"
+  },
+  "homepage": "https://github.com/Arleidt/nodejs-alura#readme",
+  "dependencies": {
+    "body-parser": "1.18.3",
+    "express": "4.16.3",
+    "marko": "4.22.1",
+    "method-override": "3.0.0",
+    "sqlite3": "^5.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "1.18.4"
+  }
+}
