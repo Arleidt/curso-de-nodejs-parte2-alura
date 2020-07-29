@@ -1,5 +1,7 @@
 //encapsulamento rotas
 
+//importando requirindo modulo express-validator, busca funções check pra dizer quais validações quero realizar e a validationResult que vai pegar a requisição que está chegando no nosso servidor e verificar se houve algum erro de validação. 
+const { check, validationResult } = require('express-validator/check');
 //import Livro.dao, Nota: repare que estamos usando LivroDao, com letra maiúscula, pois é uma referência exata à classe que criamos.
 const LivroDao =require('../infra/livro.dao.js');
 
@@ -28,6 +30,7 @@ module.exports = (app) => {
   app.get('/livros', function(req, resp){
     //instancia da classe
     const livroDao = new LivroDao(db);
+
       livroDao.lista()
           .then(livros => resp.marko(
             require('../views/livros/lista/lista.marko'),
@@ -42,20 +45,36 @@ module.exports = (app) => {
   app.get('/livros/form', function(req, resp){
     resp.marko(require('../views/livros/form/form.marko'), { livro: {} });
 
-    
   });
+      // //verificando titulo no metodo post se tem 5 caracteres e preço se esse campo tem valor monetário com express-validator. chamada para metodo withMessage se houver erro de validação que recebe uma string representando a mensagem de erro.
+      app.post('/livros', [
+        check('titulo').isLength({ min: 5 }).withMessage('O título precisa ter no mínimo 5 caracteres!'),
+        check('preco').isCurrency().withMessage('O preço precisa ter um valor monetário válido!')
+    ], function(req, resp) {
+        console.log(req.body);
+        const livroDao = new LivroDao(db);
+        //meu callback, const errors recebendo o retorno de validationResult que vai nos retornar os erros que por ventura aconteceram no momento da validação.
+        const erros = validationResult(req);
+         //se aconteceu algum erro, se aconteceu quero voltar para formulario. se meus errors não estão vazios. Se não estão vazios aconteceu algum erro, houve problema e quero retornar para forms, além disso segundo parametro um livro vazio para usar dentro template e segunda função recebe errors.array que devolve array de erros
+        if (!erros.isEmpty()) {
+            return resp.marko(
+                require('../views/livros/form/form.marko'),
+                { 
+                    livro: {}, 
+                    errosValidacao: erros.array()
+                }
+            );
+        }//return res.status(400).json({ errors: errors.array() });
 
-  app.post('/livros', function(req, resp) {
-    console.log(req.body);
-    const livroDao = new LivroDao(db);
-      livroDao.adiciona(req.body)
-          .then(resp.redirect('/livros'))
-          .catch(erro => console.log(erro));  
-  });
+        livroDao.adiciona(req.body)
+                .then(resp.redirect('/livros'))
+                .catch(erro => console.log(erro));
+    });
 
   app.put('/livros', function(req, resp) {
     console.log(req.body);
     const livroDao = new LivroDao(db);
+
       livroDao.atualiza(req.body)
           .then(resp.redirect('/livros'))
           .catch(erro => console.log(erro));  
@@ -66,6 +85,7 @@ module.exports = (app) => {
         //recuperando valor variável
         const id = req.params.id;
         const livroDao = new LivroDao(db);
+
         livroDao.remove(id)
                 //tudo deu certo devolve status 200
                 .then(() => resp.status(200).end())
@@ -200,4 +220,31 @@ module.exports = (app) => {
     app.get('/livros/form', function(req, resp) {
     resp.marko(require('../views/livros/form/form.marko'), { livro: {} });
     });
+
+    linha 1
+     Express Validator é um conjunto de middlewares que encapsulam diversos recursos da biblioteca 
+     validator.js, dentre os quais se encontra o recurso de validação de dados!
+
+     linha 51 post
+     Na realidade, o que estamos fazendo ao passar um array como segundo parâmetro do método 
+     post() é adicionar um conjunto de validadores (todos eles middlewares que serão executados antes
+     do callback da rota passado como terceiro parâmetro do post()), cada um deles retornando o que
+     o Express Validator chama de validation chain! O validation chain nada mais é do que o 
+     encadeamento das validações, que nos possibilita, dentre outras coisas, definir qual a validação 
+     que será feita no campo e, inclusive, customizar a mensagem de erro da validação!
+     Portanto, sempre que fazemos check('nomeDoCampo'), obtemos um validation chain que podemos
+      utilizar para configurar a validação, a mensagem de erro e muito mais!
+      Uma configuração válida para a validação de um campo nome que deve receber no mínimo 
+      10 caracteres é a que pode ser vista a seguir!
+      parte inicial do código omitida.
+      app.post('/usuario', [
+              check('nome').isLength({min: 10})
+          ],
+          function (req, res) {
+              // conteúdo da função callback omitido.
+          }
+      );
+      Muito bem, aluno! Está correto! Essa é outra alternativa! Em alguns, validações casos expressões 
+      regulares caem como uma luva! Para isso, basta fazer algo como 
+      check('meuCampo').matches(/* aqui vai a sua expressão regular ).
       **/
