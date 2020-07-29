@@ -31,6 +31,21 @@ app.use(methodOverride(function (req, res) {
 const rotas = require('../app/rotas/rotas');
 //constante rotas recebendo objeto app
 rotas(app);
+//criando middleware para comum para status 404 é um código de resposta HTTP que indica que o cliente pôde comunicar com o servidor, mas ou o servidor não pôde encontrar o que foi pedido, ou foi configurado para não cumprir o pedido e não revelar a razão, ou a página não existe mais. Eles não devem ser confundidos com outros erros nos quais uma conexão para o servidor de destino não pôde ser feita
+//Tratamento de página não encontrada. Essa é a forma de tratamento de erros para quando um determinado recurso/página não é encontrado na aplicação.
+app.use(function(req, resp, next){
+  return resp.status(404).marko(
+    require('../app/views/base/erros/404.marko')
+  );
+});
+//criando middleware de erro, obrigatorio 4 parametros mesmo não usando erro para express diferenciar um middleware comum de um de erro. O código 500 é um status de erro HTTP que indica uma dificuldade de processamento do servidor, a partir de uma incompatibilidade ou configuração incorreta em uma aplicação de um site
+//Tratamento de erro interno na aplicação. Essa é a forma de tratamento de erros internos da aplicação, como quando acessamos uma propriedade inexistente de um objeto ou uma exceção é lançada.
+app.use(function(erro, req, resp, next){
+  return resp.status(500).marko(
+    require('../app/views/base/erros/500.marko')
+  );
+});
+
 //exportando constante app pelo modulo custom-express.js
 module.exports = app;
 
