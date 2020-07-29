@@ -23,7 +23,13 @@
         <main class="conteudoPrincipal">
             <div class="container">
                 <h1>Cadastro de livros</h1>
-                
+
+                <div if(data.errosValidacao)>
+                    <div class="alert alert-danger" for(erro in data.errosValidacao)>
+                        ${erro.param} - ${erro.msg}
+                    </div>
+                </div>
+
                 <form action="/livros" method="post">
 
                     <div if(data.livro.id)>
@@ -91,4 +97,27 @@
       Marko JS, faremos isso facilmente, declarando uma <div> que só será exibida se data.livro.id for 
       válido. Tudo que estiver dentro dessa <div> (ou seja, os inputs ocultos) só será renderizado caso 
       tenhamos esse id válido - exatamente o que acontece quando estamos editando um livro.
--->
+
+        só vai ser iniciada renderizada se tiver alguma coisa dentro de data.errosValidacao se tiver alguma 
+        coisa gera msg de erro. Interar pelo array mostrando cada uma das msgs
+        nome do campo de erro traco msg de erro. erro.param guarda nome do campo onde houve 
+        erro de validação markespression
+      <div if(data.errosValidacao)>
+                    <div class="alert alert-danger" for(erro in data.errosValidacao)>
+                        ${erro.param} - ${erro.msg}
+                    </div>
+                </div>
+        Sobre a sua pergunta, o próprio Marko se encarrega de disponibilizar o data dentro dos nossos 
+        templates! Sendo assim, sempre que a gente enviar alguma informação para os nossos templates
+        como no exemplo a seguir
+
+        return resp.marko(
+            require('../views/livros/form/form.marko'),
+            { 
+                livro: {},
+                errosValidacao: erros.array()
+            }
+        );
+        o Marko pegará o objeto JS enviado como segundo parâmetro do método resp.marko() e colocará
+        dentro do tal do data para que a gente consiga utilizar essas informações passadas para o template!
+    -->

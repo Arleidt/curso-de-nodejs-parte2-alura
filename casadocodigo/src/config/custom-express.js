@@ -71,4 +71,8 @@ dos middlewares é importante e altera o resultado. Incorretamente definiu o
   ao que é dito na documentação do method-override. Dessa forma, como o middleware do
    body-parser foi definido apenas depois, todo o corpo da requisição estará com o valor undefined
     fazendo com que o method-override não funcione da maneira como nossa colega esperava.
+
+    linha express-validator
+    O Express Validator é um conjunto de middlewares que encapsulam diversos recursos da biblioteca
+     validator.js. E dentre esses recursos está a validação de dados!
 */
