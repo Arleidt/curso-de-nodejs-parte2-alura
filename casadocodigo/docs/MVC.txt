@@ -1,0 +1,44 @@
+Nessa aula analisaremos o detalhe citado no capítulo anterior, que ficou pendente e deve ter passado 
+despercebido pela maioria das pessoas! Além disso, aprenderemos o que é o padrão MVC 
+que dá título a essa aula.
+
+Atualmente, na nossa aplicação, se enviarmos um formulário com todos os campos em branco, 
+seremos redirecionados à mesma página e receberemos as mensagens de erro
+ que definimos anteriormente.
+
+No entanto, se você reparar bem, a URL da página foi alterada para somente 
+http://localhost:3000/livros. Se clicarmos na barra de endereço e pressionarmos "Enter", 
+navegaremos para a listagem de livros da aplicação.
+
+Estranho, não? E por que isso está acontecendo? A resposta é bem simples. No arquivo form.marko,
+ que é o template de formulário de cadastro, pedimos para que os dados fossem enviados para /livros.
+ Ou seja, quando apertamos o botão de submissão da página de cadastro, essa URL é requisitada,
+  e por isso a barra de endereço do navegador é alterada.
+
+Se quisermos que a URL se mantenha a mesma no momento de submissão do formulário, 
+precisaremos alterar o atributo action do nosso <form> para /livros/form.
+
+<form action="/livros/form" method="post">
+Porém, isso nos trará outro problema: agora teremos que alterar a rota para onde nossos dados são 
+enviados no arquivo rotas.js. Mas, dado que esse é um arquivo extenso e com diversos códigos 
+diferentes, onde exatamente teremos que mexer?
+
+Lembre-se que o arquivo de rotas deveria ter como única responsabilidade acionar determinadas 
+ações para suas respectivas rotas. Ao invés disso, no momento, também estamos definindo 
+o que cada ação deve executar. Como consequência, temos um aumento
+ na dificuldade de manutenção do projeto.
+
+Para resolvermos essa situação, lançaremos mão de um padrão arquitetural muito conhecido,
+ chamado Model View Controller, ou simplesmente MVC.
+
+Nesse padrão, em uma aplicação Node, as rotas são as responsáveis por receber as requisições 
+e acionar um controlador específico. É esse controlador que, a partir da requisição, executará 
+toda a lógica de negócios, tomando por base os modelos (dados relativos ao modelo de negócio, 
+no nosso caso livros e, posteriormente, usuários) e as visualizações (templates) 
+para montar uma resposta e devolver ao navegador.
+
+Dessa maneira, as responsabilidades do projeto são muito bem divididas, facilitando o crescimento
+ e a implementação de mudanças no código.
+
+No próximo vídeo iniciaremos as refatorações necessárias para implementarmos no nosso 
+projeto o padrão arquitetural MVC.

@@ -12,6 +12,10 @@ module.exports = (app) => {
  //base controlador ativado quando vamos acessar a base da nossa aplicação
   app.get(rotasBase.home, baseControlador.home() );
 
+  // novas rotas adicionadas.
+  app.route(rotasBase.login)
+  .get(baseControlador.login())
+  .post(baseControlador.efetuaLogin());
 
 };
 

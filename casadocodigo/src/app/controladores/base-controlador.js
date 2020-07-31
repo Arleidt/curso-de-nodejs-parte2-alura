@@ -4,10 +4,12 @@ class BaseControlador{
     static rotas(){
       //metodo estatico responsavel por me retornar um objeto javascript com todas as rotas relativas a livros
       return{
-          home : '/'
+          home : '/', 
+          login: '/login' // nova URL de rota adicionada.
       };
     }
     home(){
+      
       return function(req, resp){
         //objeto represetando a  resposta, recebendo método send que recebendo uma string como parâmetro
        /*  resp.send(
@@ -28,5 +30,19 @@ class BaseControlador{
       };
     }
 
+    login() {
+
+      return function(req, resp) {
+          resp.marko(templates.base.login);
+      };
+  }
+
+  efetuaLogin() {
+
+    return function(req, resp) {
+        // Lógica de login.
+
+    };
+  }
 }
 module.exports = BaseControlador;

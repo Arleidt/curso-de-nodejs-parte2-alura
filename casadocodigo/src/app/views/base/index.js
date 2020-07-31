@@ -3,7 +3,8 @@
 //por uma chave e um valor. 
 
 module.exports = {
-  erro404: require('./erros/404.marko'),
-  erro500: require('./erros/500.marko'),
-  home: require('./home/home.marko')
+    erro404: require('./erros/404.marko'),
+    erro500: require('./erros/500.marko'),
+    home: require('./home/home.marko'),
+    login: require('./login/login.marko') // adição da nova página.
 }

@@ -1,0 +1,129 @@
+Nessa aula trataremos da autenticação, que servirá para identificarmos os usuários que estão
+ acessando a nossa aplicação. Dessa forma, dentre outras coisas, poderemos informar se determinado 
+ usuário poderá acessar uma área da nossa aplicação, como a listagem de livros ou a funcionalidade 
+ de exclusão deles.
+
+Na prática, o usuário efetuará o login utilizando uma determinada estratégia. 
+Essa estratégia pode ser o envio de login e senha, e nesse caso faríamos uma verificação na nossa 
+aplicação para identificar se essas informações batem com as que temos na nossa base de dados. 
+Também poderíamos lançar mão de estratégias que dependem de terceiros, como a utilização de 
+OAuth ou logins sociais, como o do Facebook ou do Google.
+
+Após o usuário passar corretamente pela fase de efetuação do login, a aplicação precisará serializar
+ esse usuário dentro de uma sessão, uma área responsável por armazenar as informações 
+ relativas aos usuários.
+
+Com a criação da sessão, ela receberá um ID que a aplicação devolverá para o cliente na resposta.
+Dessa forma, esse ID será enviado em todas as próximas requisições feitas pelo cliente, de maneira
+ que a aplicação conseguirá verificar se ele realmente existe e se é de uma sessão válida.
+
+Porém, existe um detalhe: o ID da sessão trafegará entre a sessão e o cliente em formato de cookie, 
+que nada mais são do que informações de aplicações Web que ficam salvas no lado do cliente em 
+formato de texto e, normalmente, em um arquivo gerenciado pelo próprio navegador.
+
+Além disso, nossa aplicação precisará realizar uma operação de desserialização, que é quando 
+manipulamos uma determinada sessão - ou seja, justamente o oposto da serialização.
+
+Nessa aula trataremos da autenticação, que servirá para identificarmos os usuários que estão 
+acessando a nossa aplicação. Dessa forma, dentre outras coisas, poderemos informar se determinado
+ usuário poderá acessar uma área da nossa aplicação, como a listagem de livros ou a funcionalidade
+  de exclusão deles.
+
+Na prática, o usuário efetuará o login utilizando uma determinada estratégia. Essa estratégia pode 
+ser o envio de login e senha, e nesse caso faríamos uma verificação na nossa aplicação para identificar
+ se essas informações batem com as que temos na nossa base de dados. Também poderíamos lançar 
+ mão de estratégias que dependem de terceiros, como a utilização de OAuth ou logins sociais, 
+ como o do Facebook ou do Google.
+
+Após o usuário passar corretamente pela fase de efetuação do login, a aplicação precisará serializar 
+esse usuário dentro de uma sessão, uma área responsável por armazenar as informações 
+relativas aos usuários.
+
+Com a criação da sessão, ela receberá um ID que a aplicação devolverá para o cliente na resposta. 
+Dessa forma, esse ID será enviado em todas as próximas requisições feitas pelo cliente, de maneira 
+que a aplicação conseguirá verificar se ele realmente existe e se é de uma sessão válida.
+
+Porém, existe um detalhe: o ID da sessão trafegará entre a sessão e o cliente em formato de cookie, 
+que nada mais são do que informações de aplicações Web que ficam salvas no lado do cliente 
+em formato de texto e, normalmente, em um arquivo gerenciado pelo próprio navegador.
+
+Além disso, nossa aplicação precisará realizar uma operação de desserialização, que é quando 
+manipulamos uma determinada sessão - ou seja, justamente o oposto da serialização.
+
+Feitas essas explicações, voltaremos ao código para colocarmos os conceitos em prática. 
+O primeiro passo será apresentarmos ao usuário uma página onde ele poderá fazer o login. 
+Como esse processo somente envolve conteúdos que já aprendemos, nosso instrutor disponibilizou 
+uma pasta com as alterações necessárias e que deverá ser colocada na pasta "base" do projeto.
+
+No caso, teremos uma pasta "login" contendo um arquivo login.marko, um formulário de login 
+com a sintaxe do MarkoJS. Esse formulário tem dois campos, e-mail e senha, além de um botão
+ para enviar as informações (que são submetidas para a URL /login com o método POST.
+
+Além disso, o arquivo index.js, dentro da pasta "base" deverá ser alterado, adicionando 
+a chave referente ao novo template.
+
+module.exports = {
+    erro404: require('./erros/404.marko'),
+    erro500: require('./erros/500.marko'),
+    home: require('./home/home.marko'),
+    login: require('./login/login.marko') // adição da nova página.
+}
+No método rotas() do arquivo base-controlador.js, no qual devolvemos todas as rotas relativas 
+às páginas básicas da aplicação, adicionaremos uma chave com o valor login para o endereço /login.
+
+class BaseControlador {
+
+    static rotas() {
+        return {
+            home: '/',
+            login: '/login' // nova URL de rota adicionada.
+        };
+    }
+
+    home() {
+        return function(req, resp) {
+            resp.marko(
+                templates.base.home
+            );
+        };
+    }
+
+    login() {
+
+        return function(req, resp) {
+            resp.marko(templates.base.login);
+        };
+    }
+
+    efetuaLogin() {
+
+        return function(req, resp) {
+
+            // Lógica de login.
+
+        };
+    }
+}
+
+module.exports = BaseControlador;
+Como o endereço que utilizaremos para apresentar a página de login é o mesmo que utilizaremos 
+para enviar os dados do formulário, acessaremos o aquivo base-rotas.js e faremos um app.route()
+ para rotasBase.login, a chave que acabamos de criar.
+
+Em seguida, definiremos que o método login() de baseControlador deverá ser executado para o
+ método get() dessa URL. Esse método retornará uma função recebendo req eresp, devolvendo
+  a página de login. Já se o método executado for o POST. chamaremos o método efetuaLogin(), 
+  também de baseControlador.
+
+module.exports = (app) => {
+    const rotasBase = BaseControlador.rotas();
+
+    app.get(rotasBase.home, baseControlador.home());
+
+    // novas rotas adicionadas.
+    app.route(rotasBase.login)
+        .get(baseControlador.login())
+        .post(baseControlador.efetuaLogin());
+};
+Esse método retornará uma função que recebe req e resp, além de executar toda a nossa lógica 
+relativa à autenticação, que começaremos a criar no próximo vídeo.
