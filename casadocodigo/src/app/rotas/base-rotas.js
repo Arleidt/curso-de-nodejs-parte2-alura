@@ -1,72 +1,23 @@
-// encapsulamento rotas
-// importando requirindo modulo express-validator, busca funções check pra dizer quais validações quero realizar e a validationResult que vai pegar a requisição que está chegando no nosso servidor e verificar se houve algum erro de validação. 
-// const { check, validationResult } = require('express-validator/check');
-// import Livro.dao, Nota: repare que estamos usando LivroDao, com letra maiúscula, pois é uma referência exata à classe que criamos.
-// const LivroDao = require('../infra/livro.dao.js');
-// const db = require('../../config/database');
-// require para LivroControlador, representação da classe por isso L maiusculo da classe criada.
-// const LivroControlador = require('../controladores/livro-controlador.js');
-// instancia livroControlador
-// const livroControlador = new LivroControlador();
+//somente rotas basicas da aplicação; Encapsulamento de rotas base
 
-// const BaseControlador = require('../controladores/base-controlador.js');
-// const baseControlador = new BaseControlador();
-
-// const Livro = require('../modelos/livro.js');
-// const livro = new Livro();
-//Na função app que está sendo exportada, chamaremos exatamente os dois módulos de sub rotas
-const livroRotas = require('./livro-rotas.js');
-const baseRotas = require('./base-rotas.js');
+const BaseControlador = require('../controladores/base-controlador.js');
+const baseControlador = new BaseControlador();
 
 //  exportar uma função (que, no mundo JavaScript, é a instrução capaz de receber um parâmetro) capaz de receber o objeto app. 
 //ECMAScript 6, que introduziu as famosas arrow functions:
 module.exports = (app) => {
-  //De posse desses objetos, chamaremos baseRotas() passando como parâmetro nosso objeto app do Express. Em seguida, faremos o mesmo com livroRotas().
-  livroRotas(app);
-  baseRotas(app);
+  const rotasBase = BaseControlador.rotas();
 
-//   const rotasBase = BaseControlador.rotas();
-//   const rotasLivro = LivroControlador.rotas();
+  //metodos: get  primeiro parâmetros string qual a "rota caminho", segundo função callback executada sempre que cliente fazer requisição para '/ ' rota. removeremos as strings das rotas e passaremos a utilizar os objetos que configuramos nos nossos controladores.
+ //base controlador ativado quando vamos acessar a base da nossa aplicação
+  app.get(rotasBase.home, baseControlador.home() );
 
-//   metodos: get  primeiro parâmetros string qual a "rota caminho", segundo função callback executada sempre que cliente fazer requisição para '/ ' rota. removeremos as strings das rotas e passaremos a utilizar os objetos que configuramos nos nossos controladores.
-//  base controlador ativado quando vamos acessar a base da nossa aplicação
-//   app.get(rotasBase.home, baseControlador.home() );
-//  De posse dessa instância, chamaremos o método livroControlador.lista() na nossa rota /livros. Que por sua vez vai retornar a função callback que tinhamos.
-//   app.get(rotasLivro.lista, livroControlador.lista() );
-// agregaçao obj app recebe metodo route que recebe a url que quero rotear ai encadeio para metodos ex: get post put todos os verbos http que a gnt pode utilizar  em determinada url
-//   app.route(rotasLivro.cadastro)
-//         .get(livroControlador.formularioCadastrado())
-//         .post(Livro.validacoes(), livroControlador.cadastra())
-//         .put(livroControlador.edita());
-
-//   app.get(rotasLivro.edicao, livroControlador.formularioBuscaporID());
-//       //verificando titulo no metodo post se tem 5 caracteres e preço se esse campo tem valor monetário com express-validator. chamada para metodo withMessage se houver erro de validação que recebe uma string representando a mensagem de erro.
-
-//   app.put(rotasLivro.cadastro, livroControlador.edita());
-  
-//   :id criando variavel na url,qualquer coisa passada depois da ultima / vai ser salva dentro da var id
-//   app.delete(rotasLivro.delecao, livroControlador.remove());
 
 };
 
 
-
   /* 
-    livroDao.lista(function(erro, resultados) {
-      resp.marko(
-          require('../views/livros/lista/lista.marko'),
-          {
-              livros: resultados
-          }
-
-      );
-
-    } );
-    
-  });
-
-} ;
-
+   
  Linha 34- Quando fazemos a listagem, chamamos o método lista() do nosso livroDao, passando uma
   função de callback que é executada ao final da operação assíncrona do acesso ao banco de dados. 
   Por padrão, no mundo JavaScript, utilizam-se Promises para esse tipo de situação, e é isso que faremos agora.
