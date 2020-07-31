@@ -41,6 +41,7 @@ app.use(function(req, resp, next){
 //criando middleware de erro, obrigatorio 4 parametros mesmo não usando erro para express diferenciar um middleware comum de um de erro. O código 500 é um status de erro HTTP que indica uma dificuldade de processamento do servidor, a partir de uma incompatibilidade ou configuração incorreta em uma aplicação de um site
 //Tratamento de erro interno na aplicação. Essa é a forma de tratamento de erros internos da aplicação, como quando acessamos uma propriedade inexistente de um objeto ou uma exceção é lançada.
 app.use(function(erro, req, resp, next){
+  // console.log(erro);
   return resp.status(500).marko(
     require('../app/views/base/erros/500.marko')
   );
