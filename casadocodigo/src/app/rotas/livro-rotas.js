@@ -26,7 +26,7 @@ module.exports = (app) => {
         .post(Livro.validacoes(), livroControlador.cadastra())
         .put(livroControlador.edita());
 
-  app.get(rotasLivro.edicao, livroControlador.formularioBuscaporID());
+  app.get(rotasLivro.edicao, livroControlador.formularioEdicao());
       // //verificando titulo no metodo post se tem 5 caracteres e preço se esse campo tem valor monetário com express-validator. chamada para metodo withMessage se houver erro de validação que recebe uma string representando a mensagem de erro.
 
   //app.put(rotasLivro.cadastro, livroControlador.edita());

@@ -1,3 +1,4 @@
+const templates = require('../views/templates');
 class BaseControlador{
 
     static rotas(){
@@ -9,7 +10,7 @@ class BaseControlador{
     home(){
       return function(req, resp){
         //objeto represetando a  resposta, recebendo método send que recebendo uma string como parâmetro
-        resp.send(
+       /*  resp.send(
               `
                 <html>
                       <head>
@@ -20,8 +21,10 @@ class BaseControlador{
                       </body> 
                 </html>
               `
+        ); */
+        resp.marko(
+          templates.base.home
         );
-    
       };
     }
 

@@ -3,6 +3,8 @@ const { validationResult } = require('express-validator/check');
 const LivroDao = require('../infra/livro.dao.js');
 const db = require('../../config/database');
 
+const templates = require('../views/templates');
+
 class LivroControlador{
   //metodo estatico responsavel por me retornar um objeto javascript com todas as rotas relativas a livros
   static rotas(){
@@ -22,7 +24,8 @@ class LivroControlador{
   
         livroDao.lista()
             .then(livros => resp.marko(
-              require('../views/livros/lista/lista.marko'),
+                  templates.livros.lista,
+              //require('../views/livros/lista/lista.marko'),
                   {
                       livros: livros
                   }
@@ -33,12 +36,12 @@ class LivroControlador{
 
   formularioCadastrado(){
       return function(req, resp){
-          resp.marko(require('../views/livros/form/form.marko'), { livro: {} });
-      
+          //resp.marko(require('../views/livros/form/form.marko'), { livro: {} });
+             resp.marko(templates.livros.form, { livro: {} });
       };
   }
 
-  formularioBuscaporID(){
+  formularioEdicao(){
     return function(req, resp) {
       const id = req.params.id;
       const livroDao = new LivroDao(db);
@@ -46,7 +49,8 @@ class LivroControlador{
       livroDao.buscaPorId(id)
           .then(livro => 
               resp.marko(
-                  require('../views/livros/form/form.marko'),
+                  //require('../views/livros/form/form.marko'),
+                  templates.livros.form,
                   { livro: livro }
               )
           )
@@ -63,9 +67,11 @@ class LivroControlador{
        //se aconteceu algum erro, se aconteceu quero voltar para formulario. se meus errors não estão vazios. Se não estão vazios aconteceu algum erro, houve problema e quero retornar para forms, além disso segundo parametro um livro vazio para usar dentro template e segunda função recebe errors.array que devolve array de erros
       if (!erros.isEmpty()) {
           return resp.marko(
-              require('../views/livros/form/form.marko'),
+              //require('../views/livros/form/form.marko'),
+              templates.livros.form,
               { 
-                  livro: {}, 
+                  //livro: {},
+                  livro: req.body, 
                   errosValidacao: erros.array()
               }
           );
@@ -95,8 +101,8 @@ class LivroControlador{
     return function(req, resp) {
       //recuperando valor variável
       const id = req.params.id;
+      
       const livroDao = new LivroDao(db);
-
       livroDao.remove(id)
               //tudo deu certo devolve status 200
               .then(() => resp.status(200).end())
