@@ -1,0 +1,18 @@
+Nosso objetivo agora é fazermos a configuração da sessão da nossa aplicação e da autenticação do 
+usuário. Antes disso, precisaremos instalar quatro novas dependências no projeto, 
+listadas abaixo com suas respectivas versões:
+
+uuid - 3.3.2
+
+express-session - 1.15.6
+
+passport - 0.4.0
+
+passport-local - 1.0.0
+
+A dependência uuid nos ajudará a gerar strings aleatórias que serão utilizadas como ID de cada 
+sessão da nossa aplicação, enquanto a express-session nos ajudará a criar essas sessões em uma 
+aplicação Express. Já passport e passport-local nos ajudarão a trabalhar com sessões, em Node, 
+de maneira mais amigável, além de definirem a estratégia que utilizaremos para login, manipulando
+ informações que nós mesmos gerenciaremos ,
+  sem dependermos de terceiros (uma possibilidade levantada no vídeo anterior).
