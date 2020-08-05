@@ -27,6 +27,11 @@ app.use(methodOverride(function (req, res) {
     return method;
   }
 }));
+
+//importação do módulo sessao-autenticacao
+const sessaoAutenticacao = require('./sessao-autenticacao');
+sessaoAutenticacao(app);
+
 //importando rotas e suas funções e passando para constante rotas
 const rotas = require('../app/rotas/rotas');
 //constante rotas recebendo objeto app
