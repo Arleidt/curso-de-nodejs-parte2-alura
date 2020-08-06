@@ -1,0 +1,351 @@
+Como o padrão DAO foi visto na primeira parte do curso e aqui não temos nada de novo, você pode fazer o download do arquivo usuario-dao.js visto no vídeo. Esse arquivo deve ser posto na pasta src/app/infra.
+
+Nosso objetivo agora é fazermos a configuração da sessão da nossa aplicação e da autenticação do usuário. Antes disso, precisaremos instalar quatro novas dependências no projeto, listadas abaixo com suas respectivas versões:
+
+uuid - 3.3.2
+
+express-session - 1.15.6
+
+passport - 0.4.0
+
+passport-local - 1.0.0
+
+A dependência uuid nos ajudará a gerar strings aleatórias que serão utilizadas como ID de cada sessão da nossa aplicação, enquanto a express-session nos ajudará a criar essas sessões em uma aplicação Express. Já passport e passport-local nos ajudarão a trabalhar com sessões, em Node, de maneira mais amigável, além de definirem a estratégia que utilizaremos para login, manipulando informações que nós mesmos gerenciaremos , sem dependermos de terceiros (uma possibilidade levantada no vídeo anterior).
+
+Antes de prosseguirmos, repare que, como consequência do vídeo anterior, é possível acessarmos a URL http://localhost:3000/login para visualizarmos o formulário de login. Visto isso, abriremos o Prompt de Comando e encerraremos o servidor com "Ctrl + C". Em seguida, executaremos o comando npm install com cada uma das dependências listadas acima:
+
+npm install uuid@3.3.2 express-session@1.15.6 passport@0.4.0 passport-local@1.0.0 --save-exact
+Enquantoa instalação é realizada, voltaremos ao nosso código e, no diretório "config", criaremos o arquivo sessao-autenticacao.js. Esse será o módulo responsável por receber a instância do Express e configurar toda a sessão e autenticação da nossa aplicação, de modo que esse código ficará encapsulado somente em um local.
+
+Sendo assim, em custom-express.js, depois da declaração do bodyParser e do methodOverride(), criaremos uma constante sessaoAutenticacao recebendo a importação do módulo sessao-autenticacao com o require(). Em seguida, chamaremos esse módulo com sessaoAutenticacao(), passando o objeto app, a instância do Express, como parâmetro.
+
+No arquivo sessao-autenticacao.js, faremos a importação de todas as dependências que acabamos de instalar. No caso, a única que foge a regra de precisar apenas de um require() é a passport.local, que deverá ser concatenada à chamada da classe Strategy, nos devolvendo a representação de uma classe que chamaremos de LocalStrategy - afinal, como conversamos anteriormente, a autenticação se dará por meio de um código que nós desenvolveremos, e não por meio de terceiros. Repare que, por se tratar de uma classe, utilizamos um "L" maiúsculo em LocalStrategy.
+
+Assim, dentro da função, estaremos aptos a configurar a sessão e autenticação da nossa aplicação.
+
+const sessaoAutenticacao = require('./sessao-autenticacao');
+sessaoAutenticacao(app);
+const uuid = require('uuid/v4');
+const sessao = require('express-session');
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+
+module.exports = (app) => {
+
+    //configuração da sessão e da autenticação.
+}
+Primeiro, a partir do objeto passport que acabamos de importar, chamaremos o método use(), que recebe uma instância da estratégia a ser adotada na aplicação - nesse caso, justamente new LocalStrategy().
+
+
+module.exports = (app) => {
+
+    passport.use(new LocalStrategy());
+}
+O construtor da classe LocalStrategy recebe dois parâmetros. O primeiro deles é um objeto JavaScript informando quais são os campos que devem ser levados em consideração para a estratégia de login, ou seja, usernameField, o campo utilizado para obter o nome do usuário, e passwordField, para obter a senha.
+
+module.exports = (app) => {
+
+    passport.use(new LocalStrategy(
+        {
+            usernameField:,
+            passwordField:
+        }
+    ));
+}
+No formulário login.marko, definimos os campos "E-mail", cujo name possui o valor email, e "Senha", cujo name recebeu o valor senha. São justamente esses valores que passaremos para a nossa classe. Em seguida, passaremos o segundo parâmetro desse construtor, no caso uma função a ser executada para fazer a autenticação do usuário e efetuar o login, e o próprio passport será responsável por chamá-la.
+
+Como parâmetro dessa função, receberemos o email e a senha do usuário, além de uma função done que precisará ser executada quando o processo de autenticação for finalizado.
+
+module.exports = (app) => {
+
+    passport.use(new LocalStrategy(
+        {
+            usernameField: 'email',
+            passwordField: 'senha'
+        },
+        (email, senha, done) => {
+
+        }
+    ));
+}
+Agora, precisaremos recuperar no banco de dados um usuário que coincida com o email informado no login e, caso ele exista, comparar a sua senha com aquela informada no momento do login. Sendo assim, no corpo da função, faremos const usuarioDao = new UsuarioDao(db), ou seja, criaremos um novo objeto UsuarioDao recebendo uma instância do banco de dados db.
+
+Porém, não temos na nossa aplicação um UsuarioDao, nem possuímos uma instância do banco de dados. Para corrigirmos isso, baixaremos o arquivo usuario-dao.js e o colocaremos dentro da pasta "infra" da nossa aplicação. Em seguida, faremos sua importação com o require(), atribuindo-o a uma constante usuarioDao. Em seguida, também criaremos uma constante db recebendo o require() do nosso banco de dados.
+
+const usuarioDao = require('../app/infra/usuario-dao');
+const db = require('./database');
+
+module.exports = (app) => {
+
+    passport.use(new LocalStrategy(
+        {
+            usernameField: 'email',
+            passwordField: 'senha'
+        },
+        (email, senha, done) => {
+            const usuarioDao = new usuarioDao(db);
+        }
+    ));
+}
+De posse desses objetos, chamaremos usuarioDao.buscaPorEmail(), um método dentro da classe UsuarioDao, passando como parâmetro o email recebido na função (provindo do formulário de login). Como esse método nos retornará uma Promise, chamaremos o then() recebendo o usuario no qual faremos o processo de autenticação.
+
+Se não tivermos um usuario retornado ou se a senha for diferente de usuario.senha, a autenticação falhará. Sendo assim, retornaremos a chamada do método done(), que precisa ser invocado ao final da autenticação, passando como parâmetros null (pois não recebemos nenhum erro e, na primeira posição do método, só informarmos algo se um erro existir), false (porque não conseguimos autenticar um usuário) e um objeto JavaScript (opcional) informando o que aconteceu, de modo que, futuramente, quem precisar dessa informação possa recuperá-la. Nesse objeto, passaremos a chave mensagem e o valor "Login e senha incorretos!".
+
+module.exports = (app) => {
+
+    passport.use(new LocalStrategy(
+        {
+            usernameField: 'email',
+            passwordField: 'senha'
+        },
+        (email, senha, done) => {
+            const usuarioDao = new usuarioDao(db);
+            usuarioDao.buscaPorEmail(email)
+                        .then(usuario => {
+                            if (!usuario || senha != usuario.senha) {
+                                return done(null, false, {
+                                    mensagem: 'Login e senha incorretos!'
+                                });
+                            }
+                        })
+        }
+    ));
+}
+Se não cairmos nesse if, conseguiremos autenticar o usuário. Nesse caso, retornaremos a chamada da função done() passando null na primeira posição, afinal não tivemos nenhum erro, e o usuario na segunda posição. Por fim, se tivermos algum problema na invocação de buscaPorEmail(), podemos executar a função catch() nos retornando um erro. Invocaremos então a função done() passando como parâmetros o erro recebido e false, afinal não conseguimos autenticar nenhum usuário.
+
+module.exports = (app) => {
+
+    passport.use(new LocalStrategy(
+        {
+            usernameField: 'email',
+            passwordField: 'senha'
+        },
+        (email, senha, done) => {
+            const usuarioDao = new usuarioDao(db);
+            usuarioDao.buscaPorEmail(email)
+                        .then(usuario => {
+                            if (!usuario || senha != usuario.senha) {
+                                return done(null, false, {
+                                    mensagem: 'Login e senha incorretos!'
+                                });
+                            }
+
+                            return done(null, usuario);
+                        })
+                        .catch(erro => done(erro, false));
+        }
+    ));
+}
+Assim, terminamos a configuração da estratégia de autenticação do nosso usuário. Continuaremos esse processo no próximo vídeo.
+
+
+2
+
+
+Tendo definido o processo de autenticação do usuário, precisaremos nos ater aos processos de serialização e desserialização da sessão. Para isso, também a partir do objeto passport, invocaremos a função serializeUser(). Esta recebe como parâmetro outra função com o usuario autenticado e, novamente, a função done.
+
+No corpo da função, criaremos uma constante usuarioSessao que representará as informações que queremos pegar do usuário e salvar na sessão - no nosso caso, apenas duas chaves: nome, que será o valor de usuario.nome_completo (uma informação recebida do banco de dados), e email, provindo de usuario.email. Por fim, invocaremos a função done() recebendo null na primeira posição, afinal não temos nenhum erro, e a constante usuarioSessao na segunda posição, que é o objeto que queremos serializar.
+
+passport.serializeUser((usuario, done) => {
+    const usuarioSessao = {
+        nome: usuario.nome_completo,
+        email: usuario.email
+    };
+
+    done(null, usuarioSessao);
+});
+Dessa forma, está terminado o processo de serialização do nosso usuário na sessão. Agora precisamos fazer o processo inverso, que é a desserialização do usuário. Novamente, a partir do objeto passport, invocaremos a função deserializeUser(), que, a exemplo da anterior, receberá uma função a ser executada. Essa função receberá como parâmetro as informações que serializamos na sessão, ou seja, usuarioSessao, e a função done.
+
+No corpo da função, invocaremos done() passando os parâmetros null e usuarioSessao.
+
+passport.serializeUser((usuario, done) => {
+    const usuarioSessao = {
+        nome: usuario.nome_completo,
+        email: usuario.email
+    };
+
+    done(null, usuarioSessao);
+});
+
+passport.deserializeUser((usuarioSessao, done) => {
+    done(null, usuarioSessao);
+});
+Assim, nosso passport está todo configurado. Agora precisamos configurar as informações da sessão propriamente dita. Para isso, precisaremos utilizar a sessao que recebemos de express-session, o módulo que nos ajudará a fazer essas configurações junto ao Express.
+
+Como essa sessao nos retorna um middleware, precisaremos chamar, a partir do objeto app do Express, o método use(), que recebe como parâmetro um middleware. Em seguida, usaremos sessao({}) para fazermos as devidas configurações.
+
+Começaremos definindo uma palavra secreta por meio da chave secret, que recebe como valor uma string. Essa string, normalmente gerada de maneira aleatória e guardada em um arquivo de configuração da aplicação, servirá para identificar/assinar a nossa sessão. No nosso caso, essa string será node alura.
+
+A segunda configuração, genid, possuirá como valor uma função que, como parâmetro, receberá a nossa requisição req. O objetivo dessa configuração é retornar um identificador aleatório qualquer para cada uma das sessões que criarmos. Sendo assim, retornaremos uma chamada de uuid(), o módulo que instalamos justamente para gerar strings aleatórias para os ids das sessões.
+
+app.use(sessao({
+    secret: 'node alura',
+    genid: function(req) {
+        return uuid();
+    }
+}));
+Prosseguindo, configuraremos que não queremos ressalvar as sessões, mesmo que não haja nenhuma alteração nelas, com a chave resave recebendo o valor false. Por último, configuraremos a opção saveUninitialized com o valor false, pois não queremos que a aplicação gere uma sessão para todos os usuários que acessarem, por exemplo, a nossa Home, mas sim somente após a efetivação do login.
+
+app.use(sessao({
+    secret: 'node alura',
+    genid: function(req) {
+        return uuid();
+    },
+    resave: false,
+    saveUninitialized: false
+}));
+Para terminamos as configurações nesse arquivo, ainda precisamos inicializar o nosso passport e a nossa sessão. Para isso, usaremos o método app.use() para invocarmos o método passport.initialize(). Em seguida, usaremos novamente o app.use(), dessa vez pedindo a inicialização da sessão com passport.session().
+
+app.use(passport.initialize());
+app.use(passport.session());
+Com isso, terminamos todas as configurações necessárias para a sessão da nossa aplicação. No próximo vídeo vamos nos ater à criação do método efetuaLogin(), entendendo como ficará, na prática, a autenticação do usuário.
+
+
+
+Nosso objetivo agora é implementarmos propriamente a nossa autenticação. Voltaremos ao código da classe BaseControlador e, no retorno do método efetuaLogin(), usaremos o objeto passport para invocarmos o método authenticate(), responsável por executar a estratégia de autenticação que configuramos nos vídeos anteriores. Para esse método, passaremos primeiro uma string informando qual é a estratégia que utilizaremos - nesse caso, local. O segundo parâmetro será uma função callback a ser executada ao fim da estratégia de autenticação criada.
+
+efetuaLogin() {
+
+    return function(req, resp) {
+
+        passport.authenticate('local', () => {
+
+        });
+
+    };
+}
+Em sessao-autenticacao.js, no final da nossa estratégia de autenticação, sempre chamamos a função done(), que recebe por parâmetro um erro (caso ocorra um), um usuário (caso exista um) e uma informação. São justamente esses parâmetros que nossa função callback receberá.
+
+efetuaLogin() {
+
+    return function(req, resp) {
+
+        passport.authenticate('local', (erro, usuario, info) => {
+
+        });
+
+    };
+}
+Em sessao-autenticacao.js, o terceiro parâmetro só é preenchido quando não conseguimos efetuar a autenticação - ou seja, não houve nenhum erro no processo, mas o usuário que tentou se logar não foi autenticado. Sendo assim, verificaremos na nossa função callback se uma info existe e, em caso positivo, continuaremos na página de login, o que é feito retornando resp.marko() passando templates.base.login como parâmetro.
+
+efetuaLogin() {
+
+    return function(req, resp) {
+
+        passport.authenticate('local', (erro, usuario, info) => {
+            if (info) {
+                return resp.marko(templates.base.login);
+            }
+        });
+
+    };
+}
+Em seguida, precisaremos verificar se existe algum erro proveniente da nossa estratégia de autenticação. Em caso positivo, retornaremos next(), uma função já conhecida do Express que avança no processamento da requisição, passando para ela um erro, de modo a cairmos no tratamento de erros configurado nos vídeos anteriores. Porém, a função que estamos programando só recebe req e resp, ou seja, ela não foi configurada para receber também o next quando for chamada pelo Express. A boa notícia é que o Express consegue resolver isso, bastando passarmos o next como terceiro parâmetro da função.
+
+efetuaLogin() {
+
+    return function(req, resp, next) {
+
+        passport.authenticate('local', (erro, usuario, info) => {
+            if (info) {
+                return resp.marko(templates.base.login);
+            }
+
+            if (erro) {
+                return next(erro);
+            }
+        });
+
+    };
+}
+Se não cairmos em nenhum desses if, nossa autenticação terá acontecido com sucesso. Sendo assim, precisaremos adicionar o usuario à nossa sessão, e isso pode ser feito por meio do método req.login(), adicionado à requisição pelo método authenticate() do objeto passport. Como primeiro parâmetro de login(), precisaremos passar o objeto a ser adicionado na sessão, que é exatamente o usuario. Em seguida, passaremos uma função callback a ser executada ao final do processo de adição desses dados.
+
+Essa função callback recebe como parâmetro um erro, de modo a tornar possível verificarmos se aconteceu algum problema durante o processo de serialização dos dados - e é justamente isso que faremos. No caso de acontecer algum erro, retornaremos a chamada da função next() passando esse erro como parâmetro. Caso contrário, se o login for feito corretamente, retornaremos resp.redirect() para redirecionarmos o usuário para LivroControlador.rotas().lista - ou seja, para a página de listagem de livros.
+
+req.login(usuario, (erro) => {
+    if (erro) {
+        return next(erro);
+    }
+
+    return resp.redirect(LivroControlador.rotas().lista);
+});
+Para que esse redirecionamento seja possível, precisaremos importar a classe LivroControlador. Sendo assim, no início do código, criaremos uma constante LivroControlador (com "L" maiúsculo, pois é uma representação da nossa classe), fazendo o require() para ./livro-controlador.
+
+Ainda existem dois detalhes que precisamos nos atentar. Primeiro, a função passport.autenthicate() retorna outra função que precisa receber a requisição (req), a resposta (resp) e a função next. Sendo assim, após invocarmos essa função, abriremos e fecharemos parênteses passando esses parâmetros.
+
+efetuaLogin() {
+
+    return function(req, resp, next) {
+
+        passport.authenticate('local', (erro, usuario, info) => {
+            if (info) {
+                return resp.marko(templates.base.login);
+            }
+
+            if (erro) {
+                return next(erro);
+            }
+
+            req.login(usuario, (erro) => {
+                if (erro) {
+                    return next(erro);
+                }
+
+                return resp.redirect(LivroControlador.rotas().lista);
+            });
+        }) (req, resp, next);
+
+    };
+}
+O segundo detalhe é que, embora estejamos utilizando o objeto passport, em nenhum momento nós o declaramos ou criamos dentro dessa função, algo que certamente nos trará problemas. Resolveremos isso no próximo vídeo.
+
+
+Terminaremos essa aula resolvendo o problema que ficou pendente do vídeo anterior, que é a utilização de um objeto passport dentro da nossa função de autenticação sem que ele fosse declarado ou criado.
+
+De volta à nossa classe base-controlador.js, criaremos uma constante passport que obteremos a partir de um objeto req.passport da requisição. Inclusive, esse é um recurso que o próprio passport utiliza, afinal, como conversamos anteriormente, ao executarmos o método passport.authenticate(), o método login() é adicionado à requisição, mesmo sem existir anteriormente. É justamente esse tipo de adição de informações à requisição que queremos fazer, mas agora com o próprio objeto passport.
+
+efetuaLogin() {
+
+    return function(req, resp, next) {
+        const passport = req.passport;
+        passport.autenthicate('local', (erro, usuario, info) => {
+            if (info) {
+                return resp.marko(templates.base.login);
+            }
+
+            if (erro) {
+                return next(erro);
+            }
+
+            req.login(usuario, (erro) => {
+                if (erro) {
+                    return next(erro);
+                }
+
+                return resp.redirect(LivroControlador.rotas().lista);
+            });
+        }) (req, resp, next);
+
+    };
+}
+No arquivo sessao-autenticacao.js, ao final da nossa configuração, invocaremos o método app.use() para criarmos um novo middleware que, para toda requisição que chegar à nossa aplicação, executará uma função recebendo a requisição (req), a resposta (resp) e a função next. No corpo dessa função, adicionaremos um objeto req.passport recebendo como valor o próprio objeto passport que configuramos dentro do módulo sessao-autenticacao.js.
+
+Em seguida, chamaremos o método next() para seguirmos em frente com o tratamento da requisição.
+
+app.use(function (req, resp, next) {
+    req.passport = passport;
+    next();
+});
+Dessa forma, estaremos utilizando um recurso chamado injeção de dependência. Isso porque o objeto passport foi criado dentro do módulo sessao-autenticacao.js, e, por injeção de dependência, conseguimos recuperá-lo na classe base-controlador.js, utilizando, para isso, a nossa requisição.
+
+Salvaremos então todas as alterações, iniciaremos nossa aplicação no Prompt de Comando com npm start e acessaremos a URL http://localhost:3000/login pelo navegador. Nas ferramentas de desenvolvedor, acessaremos a aba "Application" e entraremos na seção "Cookies". Selecionando http://localhost:3000, que é a nossa aplicação, não teremos nenhum cookie salvo, o que é correto, afinal só queremos que os cookies sejam ativados a partir do momento em que o usuário estiver logado.
+
+Para efetuarmos o login, entraremos com as seguintes informações:
+
+E-mail: gabriel@alura.com.br
+
+Senha: 123
+
+Ao clicarmos em "Logar", receberemos uma mensagem de erro. Isso acontece pois, no arquivo sessao-autenticacao.js, no momento em que criamos uma instância de usuarioDao, fizemos new usuarioDao(), com "u" minúsculo. Corrigiremos então para new UsuarioDao(), afinal estamos trabalhando com uma classe. Ao salvarmos as alterações e tentarmos efetuar o login novamente com as mesmas credenciais, seremos redirecionados corretamente para a listagem de livros e um cookie será exibido nas ferramentas do desenvolvedor do navegador.
+
+Porém, se excluirmos esse cookie e recarregarmos a página de livros, continuaremos tendo acesso a ela, algo que só deveria acontecer quando um usuário está logado na aplicação. Resolveremos esse problema na próxima aula.

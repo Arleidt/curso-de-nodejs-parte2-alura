@@ -11,12 +11,21 @@ const LivroControlador = require('../controladores/livro-controlador.js');
 const livroControlador = new LivroControlador();
 
 const Livro = require('../modelos/livro.js');
-const livro = new Livro();
+
+const BaseControlador = require('../controladores/base-controlador.js');
 
 //  exportar uma função (que, no mundo JavaScript, é a instrução capaz de receber um parâmetro) capaz de receber o objeto app. 
 //ECMAScript 6, que introduziu as famosas arrow functions:
 module.exports = (app) => {
   const rotasLivro = LivroControlador.rotas();
+
+  app.use(rotasLivro.autenticadas, function(req, resp, next) {
+    if (req.isAuthenticated()) {
+        next();
+    } else {
+        resp.redirect(BaseControlador.rotas().login);
+    }
+});
 
  //De posse dessa instância, chamaremos o método livroControlador.lista() na nossa rota /livros. Que por sua vez vai retornar a função callback que tinhamos.
   app.get(rotasLivro.lista, livroControlador.lista() );
