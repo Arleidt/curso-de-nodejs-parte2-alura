@@ -9,10 +9,11 @@ class LivroControlador{
   //metodo estatico responsavel por me retornar um objeto javascript com todas as rotas relativas a livros
   static rotas(){
     return { 
-        lista: '/livros',
-        cadastro: '/livros/form',
-        edicao: '/livros/form/:id',
-        delecao: '/livros/:id'
+      autenticadas: '/livros*',
+      lista: '/livros',
+      cadastro: '/livros/form',
+      edicao: '/livros/form/:id',
+      delecao: '/livros/:id'
     };
   }
 
